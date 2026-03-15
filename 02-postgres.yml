@@ -41,7 +41,7 @@
 
     - name: Copy schema file
       ansible.builtin.copy:
-        src: setup.sql
+        src: script.sql
         dest: /tmp/script.sql
 
     - name: Load schema
