@@ -41,7 +41,7 @@
     - name: Copy schema file
       ansible.builtin.copy:
         src: setup.sql
-        dest: /tmp/setup.sql
+        dest: /tmp/script.sql
 
     - name: Load schema
-      ansible.builtin.shell: sudo -u postgres /usr/pgsql-16/bin/psql < /tmp/setup.sql
+      ansible.builtin.shell: sudo -u postgres /usr/pgsql-16/bin/psql < /tmp/script.sql
