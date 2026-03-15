@@ -1,0 +1,98 @@
+- name: Postgres database installation process
+  hosts: all
+  become: yes
+  vars:
+    db_name: wmp
+
+  tasks:
+    - name: Install PostgreSQL 16
+      ansible.builtin.dnf:
+        name: '@postgresql:16'
+        state: present
+
+    - name: Initialize PostgreSQL database
+      ansible.builtin.command: postgresql-setup --initdb
+      args:
+        creates: /var/lib/pgsql/16/data/postgresql.conf
+
+    - name: Modify listen_addresses
+      ansible.builtin.lineinfile:
+        path: /var/lib/pgsql/16/data/postgresql.conf
+        regexp: '^#?listen_addresses'
+        line: "listen_addresses = '*'"
+
+    - name: Allow remote connections
+      ansible.builtin.lineinfile:
+        path: /var/lib/pgsql/16/data/pg_hba.conf
+        line: "host    all    all    0.0.0.0/0    scram-sha-256"
+
+    - name: Replace peer with trust in pg_hba.conf
+      ansible.builtin.shell: sed -i 's/\bpeer\b/trust/g' /var/lib/pgsql/16/data/pg_hba.conf                                    trust'
+
+    - name: Start PostgreSQL service
+      ansible.builtin.service:
+        name: postgresql-16
+        enabled: yes
+        state: started
+
+    - name: Create database
+      community.postgresql.postgresql_db:
+        name: "{{ db_name }}"
+      become_user: postgres
+
+    - name: Create schemas
+      community.postgresql.postgresql_schema:
+        name: "{{ item }}"
+        db: "{{ db_name }}"
+      loop:
+        - portfolio_schema
+        - analytics_schema
+        - auth_schema
+      become_user: postgres
+
+    - name: Create service users
+      community.postgresql.postgresql_user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        login: yes
+      loop:
+        - { name: portfolio_svc_user, password: localdev123 }
+        - { name: analytics_svc_user, password: localdev123 }
+        - { name: auth_svc_user, password: localdev123 }
+      become_user: postgres
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
