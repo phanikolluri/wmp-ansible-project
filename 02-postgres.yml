@@ -27,7 +27,7 @@
         line: "host    all    all    0.0.0.0/0    scram-sha-256"
 
     - name: Replace peer with trust in pg_hba.conf
-      ansible.builtin.shell: sed -i 's/\bpeer\b/trust/g' /var/lib/pgsql/16/data/pg_hba.conf                                    trust'
+      ansible.builtin.shell: sed -i 's/\bpeer\b/trust/g' /var/lib/pgsql/16/data/pg_hba.conf
 
     - name: Start PostgreSQL service
       ansible.builtin.service:
