@@ -1,0 +1,54 @@
+- name: Configuration of Portfolio Service
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install java
+      ansible.builtin.dnf:
+        name: java-21-openjdk-devel
+        state: present
+
+    - name: Add the user appuser
+      ansible.builtin.user:
+        name: appuser
+        shell: /bin/false
+
+    - name: extract the application source code directly to the application directory
+      ansible.builtin.unarchive:
+        src: https://raw.githubusercontent.com/raghudevopsb88/wealth-project/main/artifacts/portfolio-service.tar.gz
+        dest: /tmp
+        remote_src: yes
+
+    - name: Build application using gradle
+      ansible.builtin.shell: chmod +x gradlew; ./gradlew bootJar --no-daemon -x test
+      args:
+        chdir: /tmp
+
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: /tmp/myfiles/build/libs/*.jar
+        dest: /tmp/portfolio-service.jar
+        owner: appuser
+        group: appuser
+        mode: '0640'
+
+    - name: Copy jar files to     
+
+    - name: Copy systemd service file to main configuration path
+      ansible.builtin.copy:
+        src: portfolio-service.service
+        dest: /etc/systemd/system/portfolio-service.service
+
+    - name: Restart portfolio-service
+      ansible.builtin.service:
+        name: portfolio-service
+        enabled: yes
+        state: restarted
+
+
+
+
+
+
+
+        
+        

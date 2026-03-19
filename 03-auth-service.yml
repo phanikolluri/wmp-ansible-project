@@ -11,6 +11,7 @@
       ansible.builtin.user:
         name: appuser
         shell: /bin/false
+        system: yes
 
     - name: Copy systemd service file to main configuration path
       ansible.builtin.copy:
@@ -27,6 +28,14 @@
       ansible.builtin.shell: CGO_ENABLED=0 go build -o auth-service ./cmd/server
       args:
         chdir: /tmp
+
+    - name: Change file ownership, group and permissions
+      ansible.builtin.file:
+        path: /tmp
+        state: directory
+        owner: appuser
+        group: appuser
+        mode: '0750'
 
     - name: Restart auth-service
       ansible.builtin.service:
